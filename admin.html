@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEMEUD | Acceso Administrativo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #f1f5f9; color: #0f172a; font-size: 0.95rem; }
+        
+        /* Contenedor Seguro (Oculto por defecto) */
+        #secure-content { display: none; height: 100vh; flex-direction: column; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        
+        /* Estilos Generales */
+        .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #e2e8f0; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #881337; border-radius: 4px; }
+        .header-bg { background: linear-gradient(135deg, #881337 0%, #be123c 100%); box-shadow: 0 4px 20px -5px rgba(190, 18, 60, 0.4); }
+        .nav-pill { padding: 10px 24px; border-radius: 12px; font-weight: 700; transition: all 0.3s ease; border: 1px solid transparent; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 10px; }
+        .nav-pill.active { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.3); backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .nav-pill:hover:not(.active) { background: rgba(255,255,255,0.1); color: #fff; transform: translateY(-1px); }
+        .table-container { background: white; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; overflow: hidden; }
+        .thead-modern th { background: #fff; color: #64748b; padding: 18px 24px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid #f1f5f9; position: sticky; top: 0; z-index: 20; }
+        .tbody-modern tr { transition: all 0.2s; border-bottom: 1px solid #f8fafc; }
+        .tbody-modern tr:hover { background-color: #fff1f2; transform: scale(1.001); z-index: 5; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .tbody-modern td { padding: 16px 24px; vertical-align: top; }
+        .code-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-top: 6px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .code-label { position: absolute; top: -8px; left: 10px; background: white; padding: 0 6px; font-size: 0.65rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
+        .code-content { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #334155; max-height: 80px; overflow-y: auto; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+        .action-btn { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border: 1px solid transparent; }
+        .btn-edit { background: #eff6ff; color: #2563eb; border-color: #dbeafe; } .btn-edit:hover { background: #2563eb; color: white; transform: translateY(-2px); }
+        .btn-print { background: #f8fafc; color: #475569; border-color: #e2e8f0; } .btn-print:hover { background: #475569; color: white; transform: translateY(-2px); }
+        .btn-delete { background: #fff1f2; color: #e11d48; border-color: #fecdd3; } .btn-delete:hover { background: #e11d48; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3); }
+        
+        /* Estilos Login Custom */
+        .login-input { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; color: #334155 !important; font-weight: 600 !important; }
+        .login-input:focus { border-color: #881337 !important; box-shadow: 0 0 0 3px rgba(136, 19, 55, 0.1) !important; }
+    </style>
+</head>
+<body>
+
+    <div id="secure-content">
+        
+        <header class="header-bg h-20 flex-none px-8 flex items-center justify-between shadow-2xl z-30">
+            <div class="flex items-center gap-5">
+                <div class="bg-white/20 p-3 rounded-2xl border border-white/20 backdrop-blur-md shadow-inner"><i class="fa-solid fa-shield-cat text-2xl text-white"></i></div>
+                <div>
+                    <h1 class="font-bold text-2xl text-white tracking-tight leading-none">CEMEUD <span class="font-light opacity-90">| Admin</span></h1>
+                    <div class="flex items-center gap-2 mt-1"><span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span><p class="text-[10px] text-red-100 font-bold uppercase tracking-widest">Sesión Segura</p></div>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="switchTab('mov')" id="tab-mov" class="nav-pill active"><i class="fa-solid fa-clock-rotate-left text-lg"></i> MOVIMIENTOS</button>
+                <button onclick="switchTab('inv')" id="tab-inv" class="nav-pill"><i class="fa-solid fa-boxes-stacked text-lg"></i> INVENTARIO</button>
+            </div>
+            
+            <div class="flex gap-3 items-center border-l border-white/20 pl-4 ml-2">
+                <button onclick="recargarTodo()" class="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/20 text-white shadow-lg group"><i class="fa-solid fa-rotate text-lg group-hover:rotate-180 transition duration-500"></i></button>
+                <button onclick="exportarExcel()" class="bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-xl flex items-center gap-2 transition transform hover:-translate-y-0.5 border-b-4 border-emerald-600 active:border-b-0 active:translate-y-0"><i class="fa-solid fa-file-excel text-lg"></i> EXPORTAR</button>
+                
+                <button onclick="cerrarSesion()" class="bg-slate-900 hover:bg-black text-white px-4 py-2 rounded-xl text-xs font-bold shadow-xl flex items-center gap-2 ml-2 border border-white/20 transition">
+                    <i class="fa-solid fa-power-off text-red-400"></i> SALIR
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-hidden p-6 relative flex flex-col gap-6">
+            <div class="grid grid-cols-4 gap-6 flex-none">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition"><div><p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Registros</p><h3 class="text-4xl font-black text-slate-800 tracking-tight" id="stat-tot">0</h3></div><div class="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center text-2xl group-hover:bg-slate-800 group-hover:text-white transition duration-300"><i class="fa-solid fa-database"></i></div></div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between border-b-4 border-b-emerald-500 group hover:shadow-md transition"><div><p class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">Stock Disponible</p><h3 class="text-4xl font-black text-emerald-700 tracking-tight" id="stat-disp">0</h3></div><div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl group-hover:scale-110 transition"><i class="fa-solid fa-box-open"></i></div></div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between border-b-4 border-b-red-600 group hover:shadow-md transition"><div><p class="text-xs font-bold text-red-600 uppercase tracking-widest mb-1">Entregados</p><h3 class="text-4xl font-black text-red-700 tracking-tight" id="stat-ent">0</h3></div><div class="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-2xl group-hover:scale-110 transition"><i class="fa-solid fa-hand-holding-heart"></i></div></div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between border-b-4 border-b-slate-500 group hover:shadow-md transition"><div><p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Devueltos</p><h3 class="text-4xl font-black text-slate-600 tracking-tight" id="stat-dev">0</h3></div><div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center text-2xl group-hover:scale-110 transition"><i class="fa-solid fa-rotate-left"></i></div></div>
+            </div>
+
+            <div class="table-container flex-1 flex flex-col">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white z-20">
+                    <div class="relative w-full max-w-lg group"><i class="fa-solid fa-magnifying-glass absolute left-5 top-4 text-slate-400 text-lg group-focus-within:text-red-700 transition"></i><input id="globalSearch" onkeyup="filtrarYPaginar()" type="text" class="w-full pl-14 pr-5 py-3.5 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-700 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-red-50 focus:border-red-800 outline-none transition placeholder-slate-400" placeholder="Buscar..."></div>
+                    <div id="inv-controls" class="hidden flex gap-4 animate-fade-in items-center">
+                        <div class="flex bg-slate-100 p-1.5 rounded-xl"><button onclick="setInvFilter('DISPONIBLE')" id="filter-disp" class="px-5 py-2 rounded-lg text-xs font-bold transition text-emerald-700 bg-white shadow-sm ring-1 ring-black/5">DISPONIBLES</button><button onclick="setInvFilter('ENTREGADO')" id="filter-ent" class="px-5 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:bg-white hover:text-red-700">ENTREGADOS</button><button onclick="setInvFilter('DEVUELTO')" id="filter-dev" class="px-5 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:bg-white hover:text-slate-800">DEVUELTOS</button></div>
+                        <button onclick="document.getElementById('modalLote').classList.remove('hidden')" class="bg-slate-800 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg hover:bg-slate-900 transition flex items-center gap-2 transform hover:-translate-y-0.5"><i class="fa-solid fa-plus-circle text-base"></i> NUEVO LOTE</button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-hidden relative">
+                    <div class="absolute inset-0 overflow-auto custom-scroll">
+                        <table id="table-mov" class="w-full border-collapse"><thead class="thead-modern"><tr><th class="w-40">FECHA REGISTRO</th><th>FUNCIONARIO RESPONSABLE</th><th class="w-1/4">DETALLE DEVOLUCIÓN</th><th class="w-1/4">DETALLE ENTREGA</th><th class="w-40 text-right">ACCIONES</th></tr></thead><tbody id="tbody-mov" class="tbody-modern"></tbody></table>
+                        <table id="table-inv" class="w-full border-collapse hidden"><thead class="thead-modern"><tr><th class="w-48">CÓDIGO ÚNICO</th><th class="w-40">ESTADO ACTUAL</th><th>INFORMACIÓN DE ASIGNACIÓN</th><th class="w-32 text-right">GESTIÓN</th></tr></thead><tbody id="tbody-inv" class="tbody-modern"></tbody></table>
+                    </div>
+                </div>
+                <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center text-sm font-medium text-slate-600"><span id="pag-info">Cargando...</span><div class="flex gap-2"><button onclick="cambiarPagina(-1)" id="btn-prev" class="px-5 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 disabled:opacity-50 font-bold text-xs uppercase transition">Anterior</button><button onclick="cambiarPagina(1)" id="btn-next" class="px-5 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 disabled:opacity-50 font-bold text-xs uppercase transition">Siguiente</button></div></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modalLote" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-96 overflow-hidden"><div class="bg-slate-800 text-white p-5 font-bold text-lg flex justify-between items-center"><span>GENERAR CÓDIGOS</span><button onclick="document.getElementById('modalLote').classList.add('hidden')"><i class="fa-solid fa-times"></i></button></div><div class="p-6 space-y-5"><div class="grid grid-cols-2 gap-4"><div><label class="text-xs font-bold text-slate-500 uppercase">Inicio</label><input id="loteIni" type="number" class="w-full border-2 border-slate-200 p-2 rounded-lg text-center font-bold text-lg font-mono outline-none focus:border-red-800"></div><div><label class="text-xs font-bold text-slate-500 uppercase">Fin</label><input id="loteFin" type="number" class="w-full border-2 border-slate-200 p-2 rounded-lg text-center font-bold text-lg font-mono outline-none focus:border-red-800"></div></div><div><label class="text-xs font-bold text-slate-500 uppercase">Formato</label><select id="loteCeros" class="w-full border-2 border-slate-200 p-2 rounded-lg font-bold text-slate-700 text-sm"><option value="5">5 Dígitos (00001)</option><option value="6">6 Dígitos (000001)</option></select></div><button onclick="generarLote()" class="w-full bg-red-800 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold shadow-lg transition transform active:scale-95">CONFIRMAR GENERACIÓN</button></div></div></div>
+    <div id="modalEdit" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-[700px] flex flex-col max-h-[90vh]"><div class="bg-gradient-to-r from-red-900 to-red-800 text-white p-5 font-bold text-lg flex justify-between items-center rounded-t-2xl"><span>EDITAR REGISTRO</span><button onclick="document.getElementById('modalEdit').classList.add('hidden')" class="hover:text-red-200"><i class="fa-solid fa-times"></i></button></div><div class="p-8 overflow-y-auto custom-scroll space-y-6"><input type="hidden" id="edFila"><div class="grid grid-cols-2 gap-5"><div><label class="text-xs font-bold text-slate-400 uppercase block mb-1">C.I.</label><input id="edCi" class="w-full border-2 border-slate-200 p-2.5 rounded-lg font-bold text-slate-700 outline-none focus:border-blue-500"></div><div><label class="text-xs font-bold text-slate-400 uppercase block mb-1">Institución</label><input id="edInst" class="w-full border-2 border-slate-200 p-2.5 rounded-lg font-bold uppercase outline-none focus:border-blue-500"></div><div><label class="text-xs font-bold text-slate-400 uppercase block mb-1">Nombres</label><input id="edNom" class="w-full border-2 border-slate-200 p-2.5 rounded-lg font-bold uppercase outline-none focus:border-blue-500"></div><div><label class="text-xs font-bold text-slate-400 uppercase block mb-1">Apellidos</label><input id="edApe" class="w-full border-2 border-slate-200 p-2.5 rounded-lg font-bold uppercase outline-none focus:border-blue-500"></div></div><div class="grid grid-cols-2 gap-5 pt-4 border-t border-slate-100"><div class="bg-slate-50 p-4 rounded-xl border border-slate-200"><label class="text-xs font-bold text-slate-500 block mb-2 text-center uppercase tracking-wider">Devolución</label><input id="edDevCant" type="number" class="w-full border p-2 rounded-lg mb-2 text-center font-bold bg-white"><textarea id="edDevCod" class="w-full border p-2 rounded-lg text-xs h-24 font-mono resize-none bg-white focus:ring-2 ring-slate-200 outline-none"></textarea></div><div class="bg-red-50 p-4 rounded-xl border border-red-100"><label class="text-xs font-bold text-red-700 block mb-2 text-center uppercase tracking-wider">Entrega</label><input id="edRecCant" type="number" class="w-full border border-red-200 p-2 rounded-lg mb-2 text-center font-bold text-red-800 bg-white"><textarea id="edRecCod" class="w-full border border-red-200 p-2 rounded-lg text-xs h-24 font-mono resize-none bg-white focus:ring-2 ring-red-200 outline-none"></textarea></div></div></div><div class="p-5 border-t bg-slate-50 flex justify-end gap-3 rounded-b-2xl"><button onclick="document.getElementById('modalEdit').classList.add('hidden')" class="px-6 py-2.5 border border-slate-300 rounded-xl font-bold text-slate-600 bg-white hover:bg-slate-100 transition">Cancelar</button><button onclick="guardarEdicion()" class="px-6 py-2.5 bg-red-900 text-white rounded-xl font-bold hover:bg-red-800 shadow-lg transition transform hover:-translate-y-0.5">Guardar Cambios</button></div></div></div>
+    <div id="loader" class="fixed inset-0 bg-white/90 hidden flex flex-col items-center justify-center z-50 backdrop-blur-sm"><div class="relative"><div class="w-16 h-16 border-4 border-slate-200 border-t-red-800 rounded-full animate-spin"></div><div class="absolute inset-0 flex items-center justify-center font-bold text-red-800 text-xs">...</div></div><span class="text-xs font-bold text-slate-500 mt-4 tracking-widest uppercase animate-pulse">Sincronizando Sistema</span></div>
+    <div id="pdf-template" style="display:none;width:700px;padding:20px;font-family:'Times New Roman',serif;box-sizing:border-box;"><div style="border:3px double #000;padding:20px;height:100%;"><table style="width:100%;border-bottom:2px solid #000;margin-bottom:15px;padding-bottom:10px;"><tr><td style="width:15%;text-align:center;"><div style="font-size:32px;border:2px solid #000;border-radius:50%;width:45px;height:45px;line-height:40px;margin:0 auto;"><b>S</b></div></td><td style="width:55%;text-align:center;"><div style="font-size:12px;font-weight:bold;">ESTADO PLURINACIONAL DE BOLIVIA</div><div style="font-size:16px;font-weight:bold;margin:2px 0;">SEDES - LA PAZ</div><div style="font-size:10px;font-weight:bold;">UNIDAD DE ESTADÍSTICAS (CEMEUD)</div></td><td style="width:30%;text-align:right;"><div style="font-size:10px;"><b>ID:</b> <span id="pdf-id" style="color:#900;font-family:'Courier New';font-size:14px;"></span><br><b>FECHA:</b> <span id="pdf-fecha"></span></div></td></tr><tr><td colspan="3" style="text-align:center;padding-top:15px;"><div style="font-size:14px;font-weight:bold;text-decoration:underline;">ACTA DE ENTREGA (COPIA ADMINISTRATIVA)</div></td></tr></table><div style="background:#eee;padding:8px;border:1px solid #000;font-size:12px;margin-bottom:15px;"><b>FUNCIONARIO:</b> <span id="pdf-nom"></span><br><b>CI:</b> <span id="pdf-ci"></span> | <b>INST:</b> <span id="pdf-inst"></span></div><table style="width:100%;border-collapse:collapse;border:1px solid #000;font-size:11px;"><tr style="background:#f0f0f0;"><td style="width:50%;text-align:center;font-weight:bold;border-right:1px solid #000;padding:5px;">DEVOLUCIÓN (BAJA)</td><td style="width:50%;text-align:center;font-weight:bold;padding:5px;">ENTREGA (NUEVO)</td></tr><tr><td style="border-right:1px solid #000;vertical-align:top;padding:10px;"><b>CANTIDAD:</b> <span id="pdf-dc" style="font-size:14px;font-weight:bold;"></span><br><div id="pdf-dcod" style="font-family:'Courier New',monospace;margin-top:5px;font-size:10px;"></div></td><td style="vertical-align:top;padding:10px;"><b>CANTIDAD:</b> <span id="pdf-rc" style="font-size:14px;font-weight:bold;"></span><br><div id="pdf-rcod" style="font-family:'Courier New',monospace;margin-top:5px;font-size:10px;"></div></td></tr></table><div style="margin-top:50px;display:flex;justify-content:space-around;text-align:center;font-size:10px;"><div style="border-top:1px solid #000;width:40%;padding-top:2px;">FIRMA FUNCIONARIO</div><div style="border-top:1px solid #000;width:40%;padding-top:2px;">RESPONSABLE CEMEUD</div></div></div></div>
+
+    <script>
+        const URL_API = "https://script.google.com/macros/s/AKfycbwMPJRFxY8B70bmkGoaMPt4p_MZb9YtztmhtlmMGP4VLZzQZgAVrjNgb0x7MWRI5WzX/exec"; 
+        
+        document.addEventListener('DOMContentLoaded', iniciarSesion);
+
+        function iniciarSesion() {
+            Swal.fire({
+                title: 'ACCESO ADMINISTRATIVO',
+                html: `
+                    <div class="flex flex-col gap-4 mt-2">
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400"></i>
+                            <input id="swal-usr" type="text" class="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 focus:ring-2 focus:ring-red-900 outline-none font-bold text-slate-700 placeholder-slate-400" placeholder="Usuario">
+                        </div>
+                        <div class="relative">
+                            <i class="fa-solid fa-key absolute left-3 top-3 text-slate-400"></i>
+                            <input id="swal-pwd" type="password" class="w-full pl-10 pr-4 py-2 border rounded-lg bg-slate-50 focus:ring-2 focus:ring-red-900 outline-none font-bold text-slate-700 placeholder-slate-400" placeholder="Contraseña">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'INGRESAR AL SISTEMA',
+                cancelButtonText: 'VOLVER A INICIO',
+                confirmButtonColor: '#881337',
+                cancelButtonColor: '#64748b',
+                allowOutsideClick: false,
+                background: '#fff',
+                customClass: { popup: 'rounded-2xl', title: 'text-xl font-bold text-red-900' },
+                preConfirm: () => {
+                    const u = document.getElementById('swal-usr').value;
+                    const p = document.getElementById('swal-pwd').value;
+                    if (u === 'SUISD' && p === 'SUISD') return true;
+                    Swal.showValidationMessage('Acceso Denegado: Credenciales inválidas');
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const content = document.getElementById('secure-content');
+                    content.style.display = 'flex';
+                    setTimeout(() => content.style.opacity = '1', 50);
+                    cargarTodo();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+
+        function cerrarSesion() {
+            const content = document.getElementById('secure-content');
+            content.style.opacity = '0';
+            setTimeout(() => {
+                content.style.display = 'none';
+                iniciarSesion();
+            }, 500);
+        }
+
+        // --- LÓGICA DEL SISTEMA (IGUAL QUE V6) ---
+        let dMov=[], dInv=[], fData=[];
+        let currTab='mov', invFilter='DISPONIBLE';
+        let codeMap={};
+        let page=1; const rowsPerPage=10;
+
+        function switchTab(t) {
+            currTab = t; page = 1;
+            document.getElementById('tab-mov').classList.remove('active'); document.getElementById('tab-inv').classList.remove('active');
+            document.getElementById('tab-'+t).classList.add('active');
+            document.getElementById('table-mov').classList.add('hidden'); document.getElementById('table-inv').classList.add('hidden');
+            document.getElementById('table-'+t).classList.remove('hidden');
+            const invControls = document.getElementById('inv-controls');
+            if(t==='inv') invControls.classList.remove('hidden'); else invControls.classList.add('hidden');
+            filtrarYPaginar();
+        }
+
+        function setInvFilter(f) {
+            invFilter = f; page = 1;
+            ['disp','ent','dev'].forEach(k => document.getElementById('filter-'+k).className = 'px-5 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:bg-white');
+            let activeClass = 'px-5 py-2 rounded-lg text-xs font-bold transition bg-white shadow-sm ring-1 ring-black/5 ';
+            if(f==='DISPONIBLE') { activeClass+='text-emerald-700'; document.getElementById('filter-disp').className=activeClass; }
+            if(f==='ENTREGADO') { activeClass+='text-red-700'; document.getElementById('filter-ent').className=activeClass; }
+            if(f==='DEVUELTO') { activeClass+='text-slate-700'; document.getElementById('filter-dev').className=activeClass; }
+            filtrarYPaginar();
+        }
+
+        function cargarTodo() {
+            load(true);
+            Promise.all([
+                fetch(URL_API, {method:'POST', body:JSON.stringify({action:'leer_registros'})}).then(r=>r.json()),
+                fetch(URL_API, {method:'POST', body:JSON.stringify({action:'leer_inventario'})}).then(r=>r.json())
+            ]).then(([resMov, resInv]) => {
+                load(false);
+                if(resMov.status==='success') { dMov = resMov.data; buildMap(); }
+                if(resInv.status==='success') dInv = resInv.data;
+                updateStats(); filtrarYPaginar();
+            }).catch(()=>{ load(false); });
+        }
+
+        function buildMap() {
+            codeMap = {};
+            dMov.forEach(m => {
+                const codes = String(m.cod_rec).split(/[\n,]+/).map(c=>c.trim().replace(/'/g,''));
+                codes.forEach(c => { if(c) codeMap[c] = { nom: `${m.apellidos} ${m.nombres}`, ci: String(m.ci).replace(/'/g,''), fecha: m.fecha, inst: m.institucion }; });
+            });
+        }
+
+        function filtrarYPaginar() {
+            const q = document.getElementById('globalSearch').value.toLowerCase();
+            if(currTab === 'mov') {
+                fData = dMov.filter(i => i.nombres.toLowerCase().includes(q) || i.apellidos.toLowerCase().includes(q) || String(i.ci).includes(q) || String(i.cod_rec).includes(q) || i.institucion.toLowerCase().includes(q));
+            } else {
+                const base = dInv.filter(i => i.estado === invFilter);
+                fData = base.filter(i => String(i.codigo).includes(q));
+            }
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const total = fData.length;
+            const maxPage = Math.ceil(total / rowsPerPage) || 1;
+            if(page > maxPage) page = maxPage; if(page < 1) page = 1;
+            
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const slice = fData.slice(start, end);
+
+            document.getElementById('pag-info').innerText = `${total>0 ? start+1 : 0}-${Math.min(end, total)} de ${total}`;
+            document.getElementById('btn-prev').disabled = page === 1;
+            document.getElementById('btn-next').disabled = page === maxPage;
+
+            if(currTab === 'mov') renderMovTable(slice); else renderInvTable(slice);
+        }
+
+        function cambiarPagina(d) { page += d; renderPagination(); }
+
+        // --- RENDERIZADO VISUAL PRO ---
+        function renderMovTable(list) {
+            const tb = document.getElementById('tbody-mov'); tb.innerHTML = '';
+            list.forEach(f => {
+                const tr = document.createElement('tr');
+                const ci = String(f.ci).replace(/'/g,'');
+                let devBox = f.devueltos > 0 ? `<div class="code-box"><span class="code-label text-slate-500">DEVOLUCIÓN (${f.devueltos})</span><div class="code-content">${String(f.cod_dev).replace(/'/g,'')}</div></div>` : '<span class="text-slate-300 text-xs italic px-2 py-4 block">Sin registros</span>';
+                let entBox = f.recogidos > 0 ? `<div class="code-box" style="border-color:#fecaca;"><span class="code-label text-red-600">ENTREGA (${f.recogidos})</span><div class="code-content text-slate-700 font-semibold">${String(f.cod_rec).replace(/'/g,'')}</div></div>` : '<span class="text-slate-300 text-xs italic px-2 py-4 block">Sin registros</span>';
+
+                tr.innerHTML = `
+                    <td class="font-mono text-xs text-slate-500 font-bold">${f.fecha.replace(' ', '<br>')}</td>
+                    <td><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-black text-slate-500 border border-white shadow-sm text-lg">${f.apellidos.charAt(0)}</div><div><div class="font-bold text-base text-slate-800 uppercase tracking-tight">${f.apellidos} ${f.nombres}</div><div class="text-xs text-slate-500 mt-1 flex gap-2"><span class="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-mono font-bold">${ci}</span><span class="truncate max-w-[200px] uppercase font-bold text-slate-400" title="${f.institucion}"><i class="fa-solid fa-building mr-1"></i>${f.institucion}</span></div></div></div></td>
+                    <td class="align-top w-1/4 p-2">${devBox}</td>
+                    <td class="align-top w-1/4 p-2">${entBox}</td>
+                    <td class="text-right align-top"><div class="flex justify-end gap-2 mt-2"><button onclick='editar(${JSON.stringify(f)})' class="action-btn btn-edit" title="Editar"><i class="fa-solid fa-pen text-sm"></i></button><button onclick='imprimir(${JSON.stringify(f)})' class="action-btn btn-print" title="Imprimir"><i class="fa-solid fa-print text-sm"></i></button><button onclick='borrarMov(${f.fila})' class="action-btn btn-delete" title="Eliminar"><i class="fa-solid fa-trash text-sm"></i></button></div></td>
+                `;
+                tb.appendChild(tr);
+            });
+        }
+
+        function renderInvTable(list) {
+            const tb = document.getElementById('tbody-inv'); tb.innerHTML = '';
+            list.forEach(i => {
+                const cod = String(i.codigo).replace(/'/g,'');
+                let badge='', info='', action='';
+
+                if(i.estado === 'DISPONIBLE') {
+                    badge = `<span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200 shadow-sm"><i class="fa-solid fa-check mr-1"></i>DISPONIBLE</span>`;
+                    info = `<span class="text-xs text-emerald-700 italic opacity-80 font-medium">Almacenado el ${i.fecha}</span>`;
+                    action = `<button onclick="borrarInv(${i.fila})" class="action-btn btn-delete ml-auto"><i class="fa-solid fa-trash"></i></button>`;
+                } else if(i.estado === 'ENTREGADO') {
+                    badge = `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-bold border border-red-200 shadow-sm"><i class="fa-solid fa-user mr-1"></i>ENTREGADO</span>`;
+                    const owner = codeMap[cod];
+                    if(owner) {
+                        info = `<div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-red-50 text-red-700 flex items-center justify-center font-bold text-xs border border-red-100 shadow-sm">${owner.nom.charAt(0)}</div><div><div class="text-xs font-bold text-slate-700 uppercase">${owner.nom}</div><div class="text-[10px] text-slate-500 font-mono mt-0.5">${owner.ci} • ${owner.fecha}</div></div></div>`;
+                    } else info = '<span class="text-xs text-red-300 italic">Sin datos cruzados</span>';
+                    action = `<button onclick="baja(${i.fila},'${cod}')" class="text-xs bg-white border border-slate-300 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-800 hover:text-white transition font-bold shadow-sm">DAR BAJA</button>`;
+                } else {
+                    badge = `<span class="bg-slate-200 text-slate-500 px-3 py-1 rounded-full text-xs font-bold border border-slate-300 shadow-inner">BAJA / DEVUELTO</span>`;
+                    info = `<span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Archivo Histórico</span>`;
+                    action = `<i class="fa-solid fa-lock text-slate-300 text-sm"></i>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="font-mono font-bold text-sm text-slate-700 bg-white border border-slate-100 px-4 py-2 rounded-lg shadow-sm w-min whitespace-nowrap">${cod}</td><td>${badge}</td><td>${info}</td><td class="text-right">${action}</td>`;
+                tb.appendChild(tr);
+            });
+        }
+
+        // --- UTILIDADES ---
+        function updateStats() {
+            let ent=0, dev=0; dMov.forEach(d=>{ ent+=Number(d.recogidos)||0; dev+=Number(d.devueltos)||0; });
+            document.getElementById('stat-tot').innerText = dMov.length; document.getElementById('stat-ent').innerText = ent; document.getElementById('stat-dev').innerText = dev;
+            document.getElementById('stat-disp').innerText = dInv.filter(i=>i.estado==='DISPONIBLE').length;
+        }
+        function load(s) { document.getElementById('loader').className = s ? "fixed inset-0 bg-white/90 flex flex-col items-center justify-center z-50 backdrop-blur-sm" : "hidden"; }
+        function recargarTodo() { cargarTodo(); }
+        function generarLote() {
+            const ini=document.getElementById('loteIni').value, fin=document.getElementById('loteFin').value, cer=document.getElementById('loteCeros').value;
+            document.getElementById('modalLote').classList.add('hidden'); load(true);
+            fetch(URL_API, {method:'POST', body:JSON.stringify({action:'generar_lote', inicio:ini, fin:fin, ceros:cer})}).then(r=>r.json()).then(res=>{ load(false); Swal.fire('Éxito',res.message,'success'); recargarTodo(); });
+        }
+        function baja(f,c) { Swal.fire({title:`¿Baja código ${c}?`, text:"Irreversible.", icon:'warning', showCancelButton:true, confirmButtonColor:'#1e293b'}).then(r=>{ if(r.isConfirmed){ load(true); fetch(URL_API,{method:'POST',body:JSON.stringify({action:'dar_baja',fila:f})}).then(()=>{load(false);recargarTodo();}); } }); }
+        
+        function borrarInv(f) {
+            Swal.fire({title:'¿ELIMINAR?', text:"Esta acción borrará el código del inventario. ¿Continuar?", icon:'error', showCancelButton:true, confirmButtonColor:'#e11d48', confirmButtonText:'SÍ, BORRAR'}).then(r=>{
+                if(r.isConfirmed){ load(true); fetch(URL_API,{method:'POST',body:JSON.stringify({action:'borrar_inventario',fila:f})}).then(()=>{load(false);recargarTodo();}); }
+            });
+        }
+        function borrarMov(f) {
+            Swal.fire({title:'¿ELIMINAR?', text:"Se eliminará todo el historial de este movimiento. ¡Cuidado!", icon:'error', showCancelButton:true, confirmButtonColor:'#e11d48', confirmButtonText:'SÍ, BORRAR'}).then(r=>{
+                if(r.isConfirmed){ load(true); fetch(URL_API,{method:'POST',body:JSON.stringify({action:'borrar',fila:f})}).then(()=>{load(false);recargarTodo();}); }
+            });
+        }
+
+        function editar(f) {
+            document.getElementById('edFila').value=f.fila; document.getElementById('edCi').value=String(f.ci).replace(/'/g,'');
+            document.getElementById('edInst').value=f.institucion; document.getElementById('edNom').value=f.nombres; document.getElementById('edApe').value=f.apellidos;
+            document.getElementById('edDevCant').value=f.devueltos; document.getElementById('edDevCod').value=String(f.cod_dev).replace(/'/g,'');
+            document.getElementById('edRecCant').value=f.recogidos; document.getElementById('edRecCod').value=String(f.cod_rec).replace(/'/g,'');
+            document.getElementById('modalEdit').classList.remove('hidden');
+        }
+        function guardarEdicion() {
+            const d={action:'editar',fila:document.getElementById('edFila').value,ci:document.getElementById('edCi').value,institucion:document.getElementById('edInst').value,nombres:document.getElementById('edNom').value,apellidos:document.getElementById('edApe').value,devueltos:document.getElementById('edDevCant').value,cod_dev:document.getElementById('edDevCod').value,recogidos:document.getElementById('edRecCant').value,cod_rec:document.getElementById('edRecCod').value};
+            document.getElementById('modalEdit').classList.add('hidden'); load(true);
+            fetch(URL_API,{method:'POST', body:JSON.stringify(d)}).then(r=>r.json()).then(()=>{ load(false); cargarTodo(); Swal.fire('Guardado','','success'); });
+        }
+        function imprimir(f) {
+            document.getElementById('pdf-id').innerText=f.fila; document.getElementById('pdf-fecha').innerText=f.fecha;
+            document.getElementById('pdf-nom').innerText=(f.apellidos+' '+f.nombres).toUpperCase(); document.getElementById('pdf-ci').innerText=String(f.ci).replace(/'/g,''); document.getElementById('pdf-inst').innerText=f.institucion;
+            document.getElementById('pdf-dc').innerText=f.devueltos; document.getElementById('pdf-dcod').innerText=String(f.cod_dev).replace(/'/g,'');
+            document.getElementById('pdf-rc').innerText=f.recogidos; document.getElementById('pdf-rcod').innerText=String(f.cod_rec).replace(/'/g,'');
+            const el=document.getElementById('pdf-template'); el.style.display='block';
+            html2pdf().set({margin:10,filename:`COPIA_${f.ci}.pdf`,html2canvas:{scale:2},jsPDF:{unit:'mm',format:'letter'}}).from(el).save().then(()=>el.style.display='none');
+        }
+        function exportarExcel() {
+            if(dMov.length===0) return;
+            const ws = XLSX.utils.json_to_sheet(dMov.map(d=>({Fecha:d.fecha, CI:String(d.ci).replace(/'/g,''), Nombre:d.nombres+' '+d.apellidos, Inst:d.institucion, Dev:d.devueltos, CodsDev:String(d.cod_dev).replace(/'/g,''), Rec:d.recogidos, CodsRec:String(d.cod_rec).replace(/'/g,'')})));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Reporte"); XLSX.writeFile(wb, "Reporte_CEMEUD.xlsx");
+        }
+    </script>
+</body>
+</html>

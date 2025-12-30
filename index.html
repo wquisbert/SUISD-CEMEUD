@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEMEUD | Registro Oficial</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #f1f5f9; }
+        
+        .input-group { position: relative; margin-bottom: 1rem; }
+        .input-field { display: block; width: 100%; padding: 10px 12px; font-size: 0.95rem; background: #fff; border: 1px solid #cbd5e1; border-radius: 0.5rem; transition: all 0.2s; }
+        .input-field:focus { border-color: #991b1b; box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.1); outline: none; }
+        .input-label { position: absolute; top: 10px; left: 10px; color: #64748b; background: #fff; padding: 0 4px; transition: all 0.2s; pointer-events: none; font-size: 0.9rem; }
+        .input-field:focus ~ .input-label, .input-field:not(:placeholder-shown) ~ .input-label { top: -8px; left: 8px; font-size: 0.7rem; color: #991b1b; font-weight: 700; text-transform: uppercase; }
+        .disabled-section { opacity: 0.5; pointer-events: none; filter: grayscale(1); background-color: #f8fafc; }
+        .loading-textarea { background-image: url('https://i.gifer.com/ZZ5H.gif'); background-size: 30px; background-position: center; background-repeat: no-repeat; }
+        
+        /* Botón Admin en Header */
+        .admin-link {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s;
+            text-decoration: none; display: flex; align-items: center; gap: 6px;
+        }
+        .admin-link:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+
+        /* Estilos Confirmación SweetAlert */
+        .swal-container { text-align: left; font-size: 0.9rem; }
+        .swal-header { border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; color: #1e293b; text-transform: uppercase; font-size: 0.85rem; }
+        .swal-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .swal-label { font-weight: bold; color: #64748b; font-size: 0.8rem; }
+        .swal-value { font-weight: bold; color: #000; }
+        .swal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .swal-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px; }
+        .swal-box-title { font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; display: block; text-align: center; }
+        .swal-code-scroll { font-family: monospace; font-size: 0.75rem; max-height: 60px; overflow-y: auto; background: #fff; border: 1px solid #ddd; padding: 4px; border-radius: 4px; word-break: break-all; }
+
+        /* PDF Hidden */
+        #pdf-template { display: none; width: 700px; padding: 25px; background: white; font-family: 'Times New Roman', serif; box-sizing: border-box; }
+        .cert-frame { border: 3px double #000; padding: 20px; height: 100%; position: relative; }
+        .cert-header { width: 100%; border-bottom: 2px solid #000; margin-bottom: 15px; padding-bottom: 10px; }
+        .cert-title { font-size: 16px; font-weight: bold; text-align: center; text-transform: uppercase; margin: 2px 0; }
+        .cert-meta { font-size: 10px; text-align: right; font-family: Arial, sans-serif; line-height: 1.4; }
+        .cert-section { background: #eee; font-size: 11px; font-weight: bold; border: 1px solid #000; padding: 3px 6px; margin-top: 15px; text-transform: uppercase; }
+        .cert-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .cert-table td { padding: 4px; vertical-align: top; font-size: 12px; }
+        .cert-field { font-size: 9px; text-transform: uppercase; color: #444; font-weight: bold; display: block; }
+        .cert-data { font-size: 13px; font-weight: bold; border-bottom: 1px dotted #999; display: block; width: 100%; }
+        .mov-table { width: 100%; border-collapse: collapse; border: 1px solid #000; margin-top: 10px; table-layout: fixed; }
+        .mov-table th { background: #f0f0f0; border: 1px solid #000; font-size: 10px; padding: 5px; text-align: center; }
+        .mov-table td { border: 1px solid #000; padding: 8px; vertical-align: top; width: 50%; }
+        .code-area { font-family: 'Courier New', monospace; font-size: 10px; text-align: justify; min-height: 80px; word-wrap: break-word; margin-top: 5px; }
+        .footer-table { width: 100%; margin-top: 60px; border: none; }
+        .sign-box { border-top: 1px solid #000; width: 80%; margin: 0 auto; text-align: center; padding-top: 5px; }
+        .sign-title { font-size: 10px; font-weight: bold; text-transform: uppercase; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl border-t-8 border-red-900 overflow-hidden">
+        
+        <div class="bg-gray-900 p-6 flex flex-col md:flex-row justify-between items-center text-white gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-red-800 p-2 rounded"><i class="fa-solid fa-file-invoice text-2xl"></i></div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-wider">SEDES LA PAZ - SUISD / CEMEUD</h1>
+                    <p class="text-gray-400 text-xs mt-1 uppercase">Gestión de Entraga de Certificados</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div id="statusBadge" class="bg-gray-700 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-gray-600 shadow">
+                    Esperando Búsqueda...
+                </div>
+                <a href="admin.html" class="admin-link">
+                    <i class="fa-solid fa-user-shield"></i> Administrar
+                </a>
+            </div>
+        </div>
+
+        <form id="mainForm" class="p-6 md:p-8" autocomplete="off">
+            <div id="alertDeuda" class="hidden mb-6 bg-red-50 border-l-4 border-red-600 p-4 rounded flex items-start gap-4">
+                <div class="text-red-600 text-2xl"><i class="fa-solid fa-circle-exclamation"></i></div>
+                <div>
+                    <p class="text-sm font-black text-red-800 uppercase">Funcionario con Deuda</p>
+                    <p class="text-sm text-red-700">Tiene pendientes <span id="txtSaldo" class="font-black text-lg bg-white px-2 border border-red-200 rounded">0</span> certificados.</p>
+                </div>
+            </div>
+
+            <div class="mb-6 bg-slate-50 p-5 rounded border border-slate-200 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="relative">
+                        <div class="flex">
+                            <div class="w-full"><input type="number" id="inputCI" name="ci" class="input-field rounded-r-none font-bold" placeholder=" " required><label class="input-label">Cédula de Identidad</label></div>
+                            <button type="button" onclick="buscarFuncionario()" id="btnBuscar" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 rounded-r border border-l-0 text-xs uppercase flex items-center gap-1 transition"><i class="fa-solid fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="input-group md:col-span-2"><input type="text" id="inputInst" name="institucion" class="input-field uppercase" placeholder=" " required><label class="input-label">Institución</label></div>
+                    <div class="input-group"><input type="text" id="inputNom" name="nombres" class="input-field uppercase" placeholder=" " required><label class="input-label">Nombres</label></div>
+                    <div class="input-group md:col-span-2"><input type="text" id="inputApe" name="apellidos" class="input-field uppercase" placeholder=" " required><label class="input-label">Apellidos</label></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="boxDevolucion" class="border border-slate-300 rounded-lg p-5 bg-white relative">
+                    <div class="absolute -top-3 left-4 bg-slate-100 px-2 text-slate-600 font-bold text-xs uppercase border border-slate-300 rounded">Devolución</div>
+                    <div class="input-group mt-3"><input type="number" name="nro_devueltos" id="nroDev" class="input-field" placeholder=" "><label class="input-label">Cantidad</label></div>
+                    <div class="input-group mb-0"><textarea name="codigos_devueltos" id="txtDev" class="input-field h-24 resize-none pt-4 text-xs font-mono" placeholder=" "></textarea><label class="input-label">Códigos</label></div>
+                </div>
+                <div class="border border-red-300 rounded-lg p-5 bg-red-50/10 relative">
+                    <div class="absolute -top-3 left-4 bg-red-50 px-2 text-red-800 font-bold text-xs uppercase border border-red-300 rounded">Entrega</div>
+                    <div class="input-group mt-3 relative">
+                        <input type="number" name="nro_recogidos" id="nroEnt" class="input-field pr-10 font-bold text-red-800" placeholder=" " onchange="obtenerStock()">
+                        <label class="input-label text-red-800">Cantidad</label>
+                        <i class="fa-solid fa-magic-wand-sparkles absolute right-3 top-3 text-red-300"></i>
+                    </div>
+                    <div class="input-group mb-0"><textarea name="codigos_recogidos" id="txtEnt" class="input-field h-24 resize-none pt-4 text-xs text-red-900 font-mono bg-red-50/20" placeholder=" " readonly></textarea><label class="input-label text-red-800">Códigos (Auto)</label></div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center pt-6 border-t">
+                <button type="button" onclick="verificar()" class="bg-red-900 hover:bg-red-800 text-white font-bold py-4 px-12 rounded-lg shadow-lg flex items-center gap-3 mx-auto transform hover:scale-105 transition">VERIFICAR Y REGISTRAR <i class="fa-solid fa-file-contract"></i></button>
+            </div>
+        </form>
+    </div>
+
+    <div id="pdf-template">
+        <div class="cert-frame">
+            <table class="header-table">
+                <tr>
+                    <td style="width: 15%; text-align: center;"><div style="font-size: 30px; border: 2px solid #000; border-radius: 50%; width: 45px; height: 45px; line-height: 40px; margin: 0 auto;"><b>S</b></div></td>
+                    <td style="width: 55%; text-align: center;"><div style="font-size: 11px; font-weight: bold;">ESTADO PLURINACIONAL DE BOLIVIA</div><div class="cert-title">SEDES - LA PAZ</div><div style="font-size: 9px; font-weight: bold;">UNIDAD DE ESTADÍSTICAS DE SALUD (CEMEUD)</div></td>
+                    <td style="width: 30%; text-align: right;"><div class="cert-meta"><b>N° CONTROL:</b> <span id="pdf-ctrl" style="color: #900; font-family: 'Courier New'; font-size: 14px;"></span><br><b>FECHA:</b> <span id="pdf-fecha"></span><br><b>HORA:</b> <span id="pdf-hora"></span></div></td>
+                </tr>
+                <tr><td colspan="3" style="text-align: center; padding-top: 10px;"><div style="font-size: 14px; font-weight: bold; text-decoration: underline;">ACTA DE ENTREGA Y RECEPCIÓN DE VALORES</div></td></tr>
+            </table>
+            <div class="cert-section">I. DATOS DEL FUNCIONARIO / SOLICITANTE</div>
+            <table class="cert-table">
+                <tr><td style="width: 70%;"><span class="cert-field">Apellidos y Nombres:</span><span class="cert-data" id="pdf-nombre"></span></td><td style="width: 30%;"><span class="cert-field">C.I.:</span><span class="cert-data" id="pdf-ci"></span></td></tr>
+                <tr><td colspan="2"><span class="cert-field">Institución / Centro de Salud:</span><span class="cert-data" id="pdf-inst"></span></td></tr>
+            </table>
+            <div class="cert-section">II. DETALLE DEL MOVIMIENTO</div>
+            <table class="mov-table">
+                <tr><th>MATERIAL DEVUELTO (BAJA)</th><th>MATERIAL ENTREGADO (NUEVO)</th></tr>
+                <tr>
+                    <td><div style="border-bottom: 1px dotted #ccc; margin-bottom: 5px;"><span class="cert-field">Cantidad:</span><span style="font-size: 14px; font-weight: bold;" id="pdf-dev-cant">0</span></div><span class="cert-field">Series / Códigos:</span><div class="code-area" id="pdf-dev-cod">---</div></td>
+                    <td><div style="border-bottom: 1px dotted #ccc; margin-bottom: 5px;"><span class="cert-field">Cantidad:</span><span style="font-size: 14px; font-weight: bold;" id="pdf-rec-cant">0</span></div><span class="cert-field">Series / Códigos:</span><div class="code-area" id="pdf-rec-cod">---</div></td>
+                </tr>
+            </table>
+            <div style="font-size: 10px; text-align: justify; margin-top: 15px; line-height: 1.2;"><b>DECLARACIÓN JURADA:</b> El funcionario receptor declara haber recibido conforme la cantidad y series de certificados detallados, asumiendo plena responsabilidad administrativa, civil y penal por su custodia y uso correcto según normativa vigente del SEDES La Paz.</div>
+            <table class="footer-table">
+                <tr><td style="width: 40%; text-align: center;"><div class="sign-box"><div class="sign-title">FIRMA FUNCIONARIO</div><div style="font-size: 9px;" id="pdf-sign-ci"></div></div></td><td style="width: 20%;"></td><td style="width: 40%; text-align: center;"><div class="sign-box"><div class="sign-title">RESPONSABLE CEMEUD</div><div style="font-size: 9px;">SELLO Y FIRMA</div></div></td></tr>
+            </table>
+            <div style="position: absolute; bottom: 5px; right: 25px; font-size: 8px; color: #888;">Sistema CEMEUD v4.5 - Copia Válida</div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ PEGA AQUÍ TU URL
+        const URL_API = "https://script.google.com/macros/s/AKfycbwMPJRFxY8B70bmkGoaMPt4p_MZb9YtztmhtlmMGP4VLZzQZgAVrjNgb0x7MWRI5WzX/exec"; 
+
+        const btnBuscar=document.getElementById('btnBuscar'), boxDev=document.getElementById('boxDevolucion'), badge=document.getElementById('statusBadge');
+
+        function buscarFuncionario(){
+            const ci=document.getElementById('inputCI').value; if(!ci){Swal.fire('Error','Ingrese CI','warning');return;}
+            const ico=btnBuscar.innerHTML; btnBuscar.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>'; btnBuscar.disabled=true;
+            fetch(URL_API,{method:"POST",body:JSON.stringify({action:"buscar_funcionario",ci:ci})}).then(r=>r.json()).then(res=>{
+                btnBuscar.innerHTML=ico; btnBuscar.disabled=false;
+                if(res.status==='success' && res.encontrado){
+                    habilitarDev(true); document.getElementById('inputNom').value=res.datos.nombres; document.getElementById('inputApe').value=res.datos.apellidos; document.getElementById('inputInst').value=res.datos.institucion; badge.innerHTML='<i class="fa-solid fa-check"></i> Registrado'; badge.className="bg-blue-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow text-white";
+                    if(res.saldo>0){ document.getElementById('alertDeuda').classList.remove('hidden'); document.getElementById('txtSaldo').innerText=res.saldo; document.getElementById('nroDev').value=res.saldo; document.getElementById('txtDev').value=res.lista_codigos; } else { document.getElementById('alertDeuda').classList.add('hidden'); limpiarDev(); }
+                }else{
+                    habilitarDev(false); limpiarDatos(); document.getElementById('alertDeuda').classList.add('hidden'); badge.innerHTML='<i class="fa-solid fa-user-plus"></i> Nuevo'; badge.className="bg-green-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow text-white";
+                }
+            }).catch(()=>{btnBuscar.innerHTML=ico;btnBuscar.disabled=false;Swal.fire('Error','Fallo de conexión','error');});
+        }
+
+        function obtenerStock(){
+            const cant=document.getElementById('nroEnt').value, txt=document.getElementById('txtEnt'); if(!cant||cant<=0){txt.value='';return;} txt.classList.add('loading-textarea'); txt.value='';
+            fetch(URL_API,{method:"POST",body:JSON.stringify({action:"obtener_auto_codigos",cantidad:cant})}).then(r=>r.json()).then(res=>{txt.classList.remove('loading-textarea');if(res.status==='success')txt.value=res.codigos;else{txt.value="Error: "+res.message;Swal.fire('Error',res.message,'error');}});
+        }
+
+        function verificar(){
+            const f=document.getElementById('mainForm'); if(!f.checkValidity()){f.reportValidity();return;}
+            const d=Object.fromEntries(new FormData(f).entries()); if(boxDev.classList.contains('disabled-section')){d.nro_devueltos=0;d.codigos_devueltos='---';}
+            const msg=`<div class="swal-container"><div class="swal-header">DATOS DEL FUNCIONARIO</div><div class="swal-row"><span class="swal-label">Nombre:</span><span class="swal-value">${d.nombres} ${d.apellidos}</span></div><div class="swal-row"><span class="swal-label">CI:</span><span class="swal-value">${d.ci}</span></div><div class="swal-row"><span class="swal-label">Institución:</span><span class="swal-value">${d.institucion}</span></div><div class="swal-grid"><div class="swal-box border-slate-300"><span class="swal-box-title text-slate-600">DEVOLUCIÓN</span><div class="text-center font-bold text-lg mb-1">${d.nro_devueltos||0}</div><div class="swal-code-scroll text-slate-500">${d.codigos_devueltos||'---'}</div></div><div class="swal-box border-red-300 bg-red-50"><span class="swal-box-title text-red-800">ENTREGA</span><div class="text-center font-bold text-lg text-red-700 mb-1">${d.nro_recogidos||0}</div><div class="swal-code-scroll text-red-800 border-red-200">${d.codigos_recogidos||'---'}</div></div></div></div>`;
+            Swal.fire({title:'Confirmar Registro',html:msg,icon:'info',width:'500px',showCancelButton:true,confirmButtonText:'Sí, Guardar',confirmButtonColor:'#991b1b',cancelButtonText:'Corregir'}).then(r=>{if(r.isConfirmed)enviar(d);});
+        }
+
+        function enviar(d){
+            Swal.fire({title:'Guardando...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+            fetch(URL_API,{method:'POST',body:JSON.stringify(Object.assign(d,{action:'registrar'}))}).then(r=>r.json()).then(res=>{
+                if(res.status==='success'){ try{ generarPDF(d); Swal.fire({title:'¡Éxito!',text:'Datos guardados.',icon:'success',confirmButtonColor:'#991b1b'}); resetAll(); }catch(e){ Swal.fire('Aviso','Guardado, error en PDF.','warning'); } }
+                else Swal.fire('Error',res.message,'error');
+            }).catch(e=>Swal.fire('Error',e.message,'error'));
+        }
+
+        function generarPDF(d){
+            const s=(i,v)=>{const e=document.getElementById(i);if(e)e.innerText=v||'---';}; const now=new Date();
+            s('pdf-ctrl',Math.floor(Math.random()*90000)+10000); s('pdf-fecha',now.toLocaleDateString()); s('pdf-hora',now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+            s('pdf-nombre',(d.apellidos+' '+d.nombres).toUpperCase()); s('pdf-ci',d.ci); s('pdf-inst',(d.institucion||'').toUpperCase());
+            s('pdf-dev-cant',d.nro_devueltos||'0'); s('pdf-dev-cod',d.codigos_devueltos||'---'); s('pdf-rec-cant',d.nro_recogidos||'0'); s('pdf-rec-cod',d.codigos_recogidos||'---'); s('pdf-sign-ci','C.I. '+d.ci);
+            const el=document.getElementById('pdf-template'); el.style.display='block';
+            html2pdf().set({margin:[10,15,10,15],filename:`ACTA_${d.ci}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'letter',orientation:'portrait'}}).from(el).save().then(()=>{el.style.display='none';});
+        }
+
+        function habilitarDev(s){if(s)boxDev.classList.remove('disabled-section');else{boxDev.classList.add('disabled-section');limpiarDev();}}
+        function limpiarDatos(){document.getElementById('inputNom').value='';document.getElementById('inputApe').value='';document.getElementById('inputInst').value='';}
+        function limpiarDev(){document.getElementById('nroDev').value='';document.getElementById('txtDev').value='';}
+        function resetAll(){document.getElementById('mainForm').reset();limpiarDatos();limpiarDev();badge.innerText='Esperando Búsqueda...';badge.className="bg-gray-700 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-white border border-gray-600 shadow";document.getElementById('alertDeuda').classList.add('hidden');habilitarDev(true);}
+    </script>
+</body>
+</html>
