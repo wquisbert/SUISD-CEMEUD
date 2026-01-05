@@ -357,4 +357,5 @@
         function exportarExcel(){ if(dMov.length===0)return; const ws=XLSX.utils.json_to_sheet(dMov.map(d=>({Fecha:d.fecha,CI:d.ci,Nombre:d.nombres+' '+d.apellidos,Inst:d.institucion,Dev:d.devueltos,Rec:d.recogidos,Obs:d.observacion}))); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Reporte"); XLSX.writeFile(wb,"Reporte_CEMEUD.xlsx"); }
     </script>
 </body>
+
 </html>
