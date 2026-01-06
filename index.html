@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEDES LA PAZ - SUISD | Registro Rápido</title>
+    <title>SEDES LA PAZ - SUISD | Registro V35</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -13,38 +13,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 
     <style>
-        /* --- VARIABLES DE TEMA DINÁMICO --- */
+        /* --- VARIABLES DE TEMA --- */
         :root {
-            /* Tema CLARO */
-            --bg-body: #f1f5f9;
-            --bg-card: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #cbd5e1;
-            --input-bg: #ffffff;
-            --header-grad-1: #7f1d1d;
-            --header-grad-2: #991b1b;
-            --accent-color: #991b1b;
+            --bg-body: #f1f5f9; --bg-card: #ffffff; --text-main: #1e293b; --text-muted: #64748b;
+            --border-color: #cbd5e1; --input-bg: #ffffff;
+            --header-grad-1: #7f1d1d; --header-grad-2: #991b1b; --accent-color: #991b1b;
             --shadow-color: rgba(0, 0, 0, 0.05);
         }
-
         [data-theme="dark"] {
-            /* Tema OSCURO */
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --input-bg: #0f172a;
-            --header-grad-1: #450a0a;
-            --header-grad-2: #7f1d1d;
-            --accent-color: #ef4444;
+            --bg-body: #0f172a; --bg-card: #1e293b; --text-main: #f1f5f9; --text-muted: #94a3b8;
+            --border-color: #334155; --input-bg: #0f172a;
+            --header-grad-1: #450a0a; --header-grad-2: #7f1d1d; --accent-color: #ef4444;
             --shadow-color: rgba(0, 0, 0, 0.3);
         }
 
-        /* ESTILOS BASE */
+        /* BASE */
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); transition: background 0.3s, color 0.3s; }
-        h1, h2, h3, .font-display { font-family: 'Outfit', sans-serif; }
+        h1, h2, h3, .btn-font { font-family: 'Outfit', sans-serif; }
         
         /* HEADER */
         .header-bg { 
@@ -70,28 +55,31 @@
             transition: all 0.2s; font-weight: 600; color: var(--text-main);
             text-transform: uppercase; 
         }
-        .input-field:focus { 
-            border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.15); 
-            outline: none;
-        }
+        .input-field:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.15); outline: none; }
         .input-label { 
             position: absolute; top: 12px; left: 14px; color: var(--text-muted); 
             background: var(--input-bg); padding: 0 6px; transition: all 0.2s; 
             pointer-events: none; font-size: 0.9rem; font-weight: 500; border-radius: 4px;
         }
-        .input-field:focus ~ .input-label, 
-        .input-field:not(:placeholder-shown) ~ .input-label { 
-            top: -9px; left: 12px; font-size: 0.75rem; color: var(--accent-color); 
-            font-weight: 800; 
-        }
+        .input-field:focus ~ .input-label, .input-field:not(:placeholder-shown) ~ .input-label { top: -9px; left: 12px; font-size: 0.75rem; color: var(--accent-color); font-weight: 800; }
 
-        /* ÁREA DE FIRMA */
-        .signature-wrapper {
-            background-color: #ffffff;
-            border: 2px dashed var(--border-color); border-radius: 1rem;
-            position: relative; height: 180px; overflow: hidden; cursor: crosshair;
+        /* FIRMA (ÁREA TOTAL) */
+        .signature-container {
+            width: 100%;
+            height: 250px; /* Altura generosa para firmar */
+            background-color: #ffffff; /* Siempre blanco para el contraste */
+            border: 2px dashed var(--border-color);
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden; /* Evita scrollbars */
+            cursor: crosshair;
+            touch-action: none; /* CRÍTICO: Previene scroll en móviles al firmar */
         }
-        canvas { width: 100%; height: 100%; display: block; }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
 
         /* BOTONES */
         .btn-theme-toggle {
@@ -102,13 +90,6 @@
         }
         .btn-theme-toggle:hover { background: rgba(255,255,255,0.2); transform: rotate(15deg); }
 
-        .btn-search { 
-            background: var(--bg-body); color: var(--text-muted); border-radius: 0 0.75rem 0.75rem 0;
-            padding: 0 24px; border: 1px solid var(--border-color); border-left: none;
-            transition: all 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .btn-search:hover { background: var(--border-color); color: var(--accent-color); }
-
         .btn-action {
             background: linear-gradient(to right, #991b1b, #b91c1c); color: white; 
             font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; font-size: 1rem;
@@ -117,13 +98,20 @@
         }
         .btn-action:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
-        /* CONFIRMACIÓN MODAL ESTILOS */
-        .swal-container-custom { text-align: left; font-family: 'Inter', sans-serif; color: #334155; }
-        .conf-box { background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 5px; }
-        .conf-title { font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; margin-bottom: 4px; }
-        .conf-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 2px; }
+        /* STOCK */
+        .stock-badge { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; transition: 0.3s; }
+        .stock-ok { background: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+        .stock-low { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
+        /* ESTILOS DEL MODAL DE CONFIRMACIÓN (SWAL) */
+        .conf-container { text-align: left; font-family: 'Inter', sans-serif; color: #334155; width: 100%; }
+        .conf-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+        .conf-header { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+        .conf-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 0.9rem; }
         .conf-val { font-weight: 700; color: #0f172a; text-transform: uppercase; }
-        .conf-code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: #fff; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; word-break: break-all; }
+        .conf-code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: #fff; padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1; color: #475569; word-break: break-all; }
+        .conf-img { width: 100%; height: auto; border: 1px dashed #cbd5e1; background: #fff; padding: 5px; border-radius: 6px; margin-top: 5px; }
 
         .disabled-section { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
         .area-code { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; background: var(--bg-body); color: var(--text-main); }
@@ -136,12 +124,12 @@
         <header class="header-bg px-8 py-6 text-white flex flex-col md:flex-row justify-between items-center gap-6 relative">
             <div class="flex items-center gap-5 z-10">
                 <div class="bg-white/10 p-3.5 rounded-2xl border border-white/20 backdrop-blur-md shadow-inner">
-                    <i class="fa-solid fa-file-signature text-2xl"></i>
+                    <i class="fa-solid fa-file-contract text-2xl"></i>
                 </div>
                 <div>
                     <h2 class="text-[11px] font-bold text-red-100/80 uppercase tracking-widest mb-1">Unidad SUISD</h2>
                     <h1 class="text-xl md:text-2xl font-black leading-none tracking-tight font-display">SEDES LA PAZ - SUISD</h1>
-                    <p class="text-white/80 text-xs font-bold mt-1 tracking-wide">GESTIÓN DE ENTREGA - CERTIFICADOS CEMEUD</p>
+                    <p class="text-white/80 text-xs font-bold mt-1 tracking-wide">GESTIÓN DE ENTREGA - CEMEUD 2026</p>
                 </div>
             </div>
 
@@ -173,7 +161,7 @@
                             <input type="number" id="inputCI" name="ci" class="input-field font-bold text-lg" style="border-radius: 0.75rem 0 0 0.75rem; border-right: none;" placeholder=" " required>
                             <label class="input-label">Cédula de Identidad</label>
                         </div>
-                        <button type="button" onclick="buscarFuncionario()" id="btnBuscar" class="btn-search" title="Buscar Funcionario"><i class="fa-solid fa-magnifying-glass text-lg"></i></button>
+                        <button type="button" onclick="buscarFuncionario()" id="btnBuscar" class="bg-slate-200 text-slate-600 px-6 rounded-r-xl border border-slate-300 hover:bg-slate-300 transition cursor-pointer flex items-center justify-center"><i class="fa-solid fa-magnifying-glass text-lg"></i></button>
                     </div>
                     <div class="input-group md:col-span-2">
                         <input type="text" id="inputInst" name="institucion" class="input-field font-bold" placeholder=" " required oninput="this.value = this.value.toUpperCase()">
@@ -192,9 +180,8 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div id="boxDevolucion" class="card-dynamic p-5 border-l-4" style="border-left-color: #64748b;">
-                    <div class="flex items-center gap-2 mb-4" style="color: var(--text-muted);">
-                        <i class="fa-solid fa-arrow-rotate-left"></i>
-                        <h3 class="text-xs font-bold uppercase tracking-wider">Devolución (Baja)</h3>
+                    <div class="flex items-center gap-2 mb-4 text-slate-500 font-bold text-xs uppercase tracking-wider">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> Devolución
                     </div>
                     <div class="input-group">
                         <input type="number" name="nro_devueltos" id="nroDev" class="input-field text-center font-bold text-xl" placeholder=" " oninput="syncDesdeCantidad()">
@@ -207,10 +194,15 @@
                 </div>
 
                 <div class="card-dynamic p-5 border-l-4" style="border-left-color: #be123c; background: linear-gradient(to bottom right, var(--bg-card), rgba(190, 18, 60, 0.05));">
-                    <div class="flex items-center gap-2 mb-4 text-red-700">
-                        <i class="fa-solid fa-hand-holding-hand"></i>
-                        <h3 class="text-xs font-bold uppercase tracking-wider">Entrega (Nuevos)</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2 text-red-700 font-bold text-xs uppercase tracking-wider">
+                            <i class="fa-solid fa-hand-holding-hand"></i> Entrega (Nuevos)
+                        </div>
+                        <div id="stockBadge" class="stock-badge stock-ok">
+                            <i class="fa-solid fa-box"></i> STOCK: <span id="valStock">...</span>
+                        </div>
                     </div>
+                    
                     <div class="input-group relative">
                         <input type="number" name="nro_recogidos" id="nroEnt" class="input-field text-center font-bold text-xl text-red-700" style="border-color: #fca5a5;" placeholder=" " onchange="obtenerStock()">
                         <label class="input-label text-red-700">Cantidad a Entregar</label>
@@ -235,11 +227,12 @@
                         <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
                             <i class="fa-solid fa-pen-nib text-blue-700"></i> Firma de Conformidad
                         </h3>
-                        <span class="text-[10px] text-blue-700 font-bold uppercase bg-blue-50 px-2 py-1 rounded border border-blue-100">Tinta Azul</span>
+                        <span class="text-[9px] text-blue-700 font-bold uppercase bg-blue-50 px-2 py-1 rounded border border-blue-100">Tinta Azul</span>
                     </div>
-                    <div class="signature-wrapper">
+                    
+                    <div class="signature-container" id="sigContainer">
                         <canvas id="signature-pad"></canvas>
-                         <button type="button" class="absolute bottom-3 right-3 bg-white text-slate-600 hover:text-red-600 px-3 py-1 rounded text-[10px] font-bold border border-slate-300 shadow-sm transition uppercase z-10" onclick="limpiarFirma()">
+                         <button type="button" class="absolute bottom-3 right-3 bg-white text-slate-600 hover:text-red-600 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-slate-300 shadow-sm transition uppercase z-10 hover:bg-slate-50" onclick="limpiarFirma()">
                             <i class="fa-solid fa-eraser mr-1"></i> Limpiar
                         </button>
                     </div>
@@ -257,40 +250,65 @@
     <script>
         // ==========================================
         // ⚠️ PEGA AQUÍ TU URL
-        const URL_API = "https://script.google.com/macros/s/AKfycbxJoLudHYzMH_Tn5tBMDPFHQ153SRDkvK9Wu4lDRPLMoGX7McDIkS-Gon2_tQoEq09F/exec"; 
+        const URL_API = "https://script.google.com/macros/s/AKfycbyyoAkAmkEWK1U2MF-RyDawsQx2E1BvCjNkKU_QDts_SPweMbem-7vc1okgWjjTJu30/exec"; 
         // ==========================================
 
-        // --- GESTIÓN DE TEMAS ---
+        let globalStock = 0;
+
         function toggleTheme() {
-            const html = document.documentElement;
-            const btn = document.getElementById('themeBtn');
-            if (html.getAttribute('data-theme') === 'light') {
-                html.setAttribute('data-theme', 'dark');
-                btn.innerHTML = '<i class="fa-solid fa-sun text-yellow-400"></i>';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                html.setAttribute('data-theme', 'light');
-                btn.innerHTML = '<i class="fa-solid fa-moon"></i>';
-                localStorage.setItem('theme', 'light');
-            }
+            const h=document.documentElement, b=document.getElementById('themeBtn');
+            const n=h.getAttribute('data-theme')==='light'?'dark':'light';
+            h.setAttribute('data-theme',n); localStorage.setItem('theme',n);
+            b.innerHTML=n==='dark'?'<i class="fa-solid fa-sun text-yellow-400"></i>':'<i class="fa-solid fa-moon"></i>';
         }
-        if(localStorage.getItem('theme') === 'dark') { toggleTheme(); }
+        if(localStorage.getItem('theme')==='dark') toggleTheme();
 
         const btnBuscar=document.getElementById('btnBuscar'), boxDev=document.getElementById('boxDevolucion'), badge=document.getElementById('statusBadge');
         let deudaTotalCodigos = [], signaturePad;
 
         document.addEventListener('DOMContentLoaded', () => {
             const canvas = document.getElementById('signature-pad');
-            function resizeCanvas() { const ratio = Math.max(window.devicePixelRatio || 1, 1); canvas.width = canvas.offsetWidth * ratio; canvas.height = canvas.offsetHeight * ratio; canvas.getContext("2d").scale(ratio, ratio); }
-            window.onresize = resizeCanvas; resizeCanvas();
-            signaturePad = new SignaturePad(canvas, { backgroundColor: 'rgba(255,255,255,0)', penColor: '#00008b', minWidth: 0.5, maxWidth: 2.0 });
+            const container = document.getElementById('sigContainer');
+
+            // --- LÓGICA DE REDIMENSIÓN PERFECTA ---
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                // Usar offsetWidth para que coincida con el CSS
+                canvas.width = container.offsetWidth * ratio;
+                canvas.height = container.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+            }
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
+
+            // FIRMA AZUL FINA
+            signaturePad = new SignaturePad(canvas, { 
+                backgroundColor: 'rgba(255,255,255,0)', 
+                penColor: '#00008b', 
+                minWidth: 0.5, 
+                maxWidth: 2.0 
+            });
+
+            actualizarStockVisual();
         });
 
         function limpiarFirma() { signaturePad.clear(); }
 
-        // BUSCADOR
+        function actualizarStockVisual() {
+            fetch(URL_API, { method: 'POST', body: JSON.stringify({ action: 'obtener_stock_total' }) })
+            .then(r => r.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    globalStock = res.total;
+                    const elVal = document.getElementById('valStock');
+                    elVal.innerText = globalStock;
+                    document.getElementById('stockBadge').className = globalStock > 0 ? 'stock-badge stock-ok' : 'stock-badge stock-low';
+                }
+            });
+        }
+
         function buscarFuncionario() {
-            const ci=document.getElementById('inputCI').value; if(!ci){Swal.fire({title:'Atención',text:'Ingrese el CI del funcionario',icon:'warning',confirmButtonColor:'#991b1b'});return;}
+            const ci=document.getElementById('inputCI').value; if(!ci){Swal.fire({title:'Atención',text:'Ingrese el CI',icon:'warning',confirmButtonColor:'#991b1b'});return;}
             const ico=btnBuscar.innerHTML; btnBuscar.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnBuscar.disabled=true;
             fetch(URL_API,{method:"POST",body:JSON.stringify({action:"buscar_funcionario",ci:ci})}).then(r=>r.json()).then(res=>{
                 btnBuscar.innerHTML=ico; btnBuscar.disabled=false;
@@ -303,67 +321,72 @@
             }).catch(()=>{ btnBuscar.innerHTML=ico; btnBuscar.disabled=false; Swal.fire('Error','Fallo de conexión.','error'); });
         }
 
-        // LOGICA UI
         function syncDesdeTexto(){ const t=document.getElementById('txtDev').value; const c=t.split(/[\n, ]+/).filter(x=>x.trim()!==''); document.getElementById('nroDev').value=c.length; }
         function syncDesdeCantidad(){ if(deudaTotalCodigos.length===0)return; const n=parseInt(document.getElementById('nroDev').value)||0; const s=deudaTotalCodigos.slice(0,n); document.getElementById('txtDev').value=s.join(', '); }
-        function obtenerStock(){ const c=document.getElementById('nroEnt').value, t=document.getElementById('txtEnt'); if(!c||c<=0){t.value='';return;} t.classList.add('animate-pulse'); t.value='GENERANDO...'; fetch(URL_API,{method:"POST",body:JSON.stringify({action:"obtener_auto_codigos",cantidad:c})}).then(r=>r.json()).then(res=>{ t.classList.remove('animate-pulse'); if(res.status==='success')t.value=res.codigos; else { t.value=''; Swal.fire('Error',res.message,'error'); } }); }
+        
+        function obtenerStock(){ 
+            const c=parseInt(document.getElementById('nroEnt').value)||0; const t=document.getElementById('txtEnt'); 
+            if(c<=0){ t.value=''; return; }
+            if(c > globalStock) { Swal.fire('Stock Insuficiente', `Solo quedan ${globalStock} disponibles.`, 'error'); document.getElementById('nroEnt').value = globalStock; return; }
+            t.classList.add('animate-pulse'); t.value='GENERANDO...'; 
+            fetch(URL_API,{method:"POST",body:JSON.stringify({action:"obtener_auto_codigos",cantidad:c})}).then(r=>r.json()).then(res=>{ t.classList.remove('animate-pulse'); if(res.status==='success')t.value=res.codigos; else { t.value=''; Swal.fire('Error',res.message,'error'); } }); 
+        }
 
-        // CONFIRMACIÓN DINÁMICA
+        // --- CONFIRMACIÓN DINÁMICA ---
         function verificarYEnviar() {
             const f = document.getElementById('mainForm'); if(!f.checkValidity()){ f.reportValidity(); return; }
-            if (signaturePad.isEmpty()) { Swal.fire({ icon: 'warning', title: 'Falta la Firma', text: 'El funcionario debe firmar en el recuadro blanco.', confirmButtonColor: '#991b1b' }); return; }
+            if (signaturePad.isEmpty()) { Swal.fire({ icon: 'warning', title: 'Falta Firma', text: 'El funcionario debe firmar en el recuadro.', confirmButtonColor: '#991b1b' }); return; }
             
             const d = Object.fromEntries(new FormData(f).entries());
             if(boxDev.classList.contains('disabled-section')) { d.nro_devueltos=0; d.codigos_devueltos='---'; }
             const firmaBase64 = signaturePad.toDataURL("image/png");
 
-            // HTML DETALLADO EN BLANCO PARA QUE SE LEA SIEMPRE
-            const htmlVerify = `
-                <div class="swal-container-custom">
+            // HTML DETALLADO DEL MODAL
+            const htmlConfirm = `
+                <div class="conf-container">
                     <div class="conf-box">
-                        <div class="conf-title">FUNCIONARIO</div>
-                        <div class="conf-row"><span>Nombre:</span> <span class="conf-val">${d.nombres} ${d.apellidos}</span></div>
+                        <div class="conf-header">DATOS DEL FUNCIONARIO</div>
+                        <div class="conf-row"><span>NOMBRE:</span> <span class="conf-val">${d.nombres} ${d.apellidos}</span></div>
                         <div class="conf-row"><span>CI:</span> <span class="conf-val">${d.ci}</span></div>
-                        <div class="conf-row"><span>Institución:</span> <span class="conf-val">${d.institucion}</span></div>
+                        <div class="conf-row"><span>INSTITUCIÓN:</span> <span class="conf-val">${d.institucion}</span></div>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div class="conf-box bg-slate-50 border-slate-200">
-                            <div class="conf-title text-slate-500">DEVOLUCIÓN</div>
-                            <div class="text-xl font-black text-slate-700">${d.nro_devueltos||0}</div>
-                            <div class="conf-code text-slate-500">${d.codigos_devueltos||'-'}</div>
+                        <div class="conf-box bg-slate-50 border-slate-300">
+                            <div class="conf-header text-slate-500">DEVOLUCIÓN</div>
+                            <div class="text-xl font-black text-slate-700 text-center">${d.nro_devueltos||0}</div>
+                            <div class="conf-code text-slate-500 mt-1">${d.codigos_devueltos||'-'}</div>
                         </div>
                         <div class="conf-box bg-red-50 border-red-100">
-                            <div class="conf-title text-red-500">ENTREGA</div>
-                            <div class="text-xl font-black text-red-700">${d.nro_recogidos||0}</div>
-                            <div class="conf-code text-red-900">${d.codigos_recogidos||'-'}</div>
+                            <div class="conf-header text-red-600">ENTREGA (NUEVOS)</div>
+                            <div class="text-xl font-black text-red-700 text-center">${d.nro_recogidos||0}</div>
+                            <div class="conf-code text-red-800 mt-1">${d.codigos_recogidos||'-'}</div>
                         </div>
                     </div>
-                    ${d.observacion ? `<div class="conf-box bg-yellow-50 border-yellow-200 text-yellow-800 text-xs"><b>OBS:</b> ${d.observacion}</div>` : ''}
-                    <div class="text-center mt-2">
-                        <div class="text-[10px] font-bold text-blue-600 uppercase mb-1">Firma Capturada</div>
-                        <img src="${firmaBase64}" style="height:60px;margin:0 auto;border:1px dashed #ccc;padding:2px;border-radius:4px;background:white;">
+                    ${d.observacion ? `<div class="conf-box bg-yellow-50 text-yellow-800 text-xs"><b>OBS:</b> ${d.observacion}</div>` : ''}
+                    <div class="text-center mt-3">
+                        <div class="text-[10px] font-bold text-blue-600 uppercase mb-1">FIRMA DIGITAL</div>
+                        <img src="${firmaBase64}" class="conf-img">
                     </div>
                 </div>`;
 
             Swal.fire({
-                title: 'VERIFICAR DATOS',
-                html: htmlVerify,
+                title: 'VERIFICAR Y REGISTRAR',
+                html: htmlConfirm,
                 icon: 'question',
-                width: '500px',
+                width: '550px',
                 showCancelButton: true,
-                confirmButtonText: 'SÍ, REGISTRAR',
+                confirmButtonText: 'SÍ, GUARDAR',
                 confirmButtonColor: '#166534',
                 cancelButtonText: 'Corregir',
                 cancelButtonColor: '#64748b',
-                background: '#fff', // Fondo blanco forzado en modal
+                background: '#ffffff',
                 color: '#1e293b'
             }).then((result) => { if (result.isConfirmed) enviarDatos(d, firmaBase64); });
         }
 
         function enviarDatos(d, firma) {
-            Swal.fire({title:'Guardando...', text:'Procesando registro...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
+            Swal.fire({title:'Guardando...', text:'Procesando datos...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
             
-            // Asegurar mayúsculas
             d.nombres=d.nombres.toUpperCase(); d.apellidos=d.apellidos.toUpperCase();
             d.institucion=d.institucion.toUpperCase(); d.observacion=d.observacion.toUpperCase();
             d.codigos_devueltos=d.codigos_devueltos.toUpperCase();
@@ -373,8 +396,16 @@
             fetch(URL_API, {method:'POST', body:JSON.stringify(payload)})
             .then(r => r.json()).then(res => {
                 if(res.status==='success') { 
-                    Swal.fire({ icon: 'success', title: '¡REGISTRO EXITOSO!', text: 'Los datos se guardaron correctamente.', timer: 2000, showConfirmButton: false });
-                    resetAll();
+                    Swal.fire({ 
+                        icon: 'success', 
+                        title: '¡REGISTRO EXITOSO!', 
+                        text: 'Operación completada correctamente.', 
+                        timer: 2500, 
+                        showConfirmButton: false,
+                        background: '#f0fdf4',
+                        color: '#166534'
+                    });
+                    resetAll(); 
                 } else Swal.fire('Error', res.message, 'error');
             }).catch(e => Swal.fire('Error Crítico', e.message, 'error'));
         }
@@ -382,7 +413,17 @@
         function habilitarDev(s) { if(s) boxDev.classList.remove('disabled-section'); else { boxDev.classList.add('disabled-section'); limpiarDev(); } }
         function limpiarDatos() { document.getElementById('inputNom').value=''; document.getElementById('inputApe').value=''; document.getElementById('inputInst').value=''; document.getElementById('inputObs').value=''; }
         function limpiarDev() { document.getElementById('nroDev').value=''; document.getElementById('txtDev').value=''; }
-        function resetAll() { document.getElementById('mainForm').reset(); limpiarDatos(); limpiarDev(); limpiarFirma(); badge.className="bg-black/20 px-3 py-1.5 rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm text-slate-500"; badge.innerHTML='<span class="w-2 h-2 rounded-full bg-slate-300 animate-pulse inline-block mr-1"></span> Esperando'; document.getElementById('alertDeuda').classList.add('hidden'); habilitarDev(true); deudaTotalCodigos = []; document.getElementById('txtEnt').value=''; }
+        function resetAll() { 
+            document.getElementById('mainForm').reset(); 
+            limpiarDatos(); limpiarDev(); limpiarFirma(); 
+            badge.className="bg-black/20 px-3 py-1.5 rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm text-slate-500"; 
+            badge.innerHTML='<span class="w-2 h-2 rounded-full bg-slate-300 animate-pulse inline-block mr-1"></span> Esperando'; 
+            document.getElementById('alertDeuda').classList.add('hidden'); 
+            habilitarDev(true); deudaTotalCodigos = []; document.getElementById('txtEnt').value=''; 
+            
+            actualizarStockVisual(); // Refrescar stock visualmente
+            setTimeout(() => document.getElementById('inputCI').focus(), 500);
+        }
     </script>
 </body>
 </html>
